@@ -10,11 +10,11 @@ const StatisticLine = ({ text, value }) => {
       <td>{text}</td>
       <td>{value}</td>
     </tr>
-  )
+  );
 };
 
 const Statistics = ({ stats }) => {
-  if (stats.total <= 0) return <p>No feedback given</p>
+  if (stats.total <= 0) return <p>No feedback given</p>;
 
   return (
     <>
@@ -30,14 +30,14 @@ const Statistics = ({ stats }) => {
         </tbody>
       </table>
     </>
-  )
+  );
 };
 
 const App = () => {
   // save clicks of each button to its own state
-  const [good, setGood] = useState(0);
-  const [neutral, setNeutral] = useState(0);
-  const [bad, setBad] = useState(0);
+  const [ good, setGood ] = useState(0);
+  const [ neutral, setNeutral ] = useState(0);
+  const [ bad, setBad ] = useState(0);
   const [ total, setTotal ] = useState(0);
   const [ average, setAverage ] = useState(0);
   const [ positive, setPositive ] = useState(0);
@@ -89,7 +89,7 @@ const App = () => {
       <Button handleClick={handleBadClick} text="bad" />
       <Statistics stats={{ good, neutral, bad, total, positive, average }}/>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
