@@ -29,15 +29,12 @@ const PersonForm = ({ handleForm, handleName, handleNumber, newNumber, newName }
 };
 
 const Persons = ({ displayedPersons, handleDelete }) => {
-  return displayedPersons.map(person => <Person key={person.id} person={person} handleDelete={handleDelete}/>);
-};
-
-const Person = ({ person, handleDelete }) => {
-  return (
-    <>
-      <li>{person.name} {person.number} <button data-id={person.id} onClick={handleDelete}>delete</button></li>
-    </>
-  );
+  return displayedPersons.map(person => {
+    return (
+      <li key={person.id}>{person.name} {person.number}
+      <button data-id={person.id} onClick={handleDelete}>delete</button></li>
+    )
+  });
 };
 
 const App = () => {
@@ -65,6 +62,7 @@ const App = () => {
 
   function addNewPerson(newName, newNumber) {
     const newPerson = { name: newName, number: newNumber };
+    
     personService.createPerson(newPerson)
       .then(response => {
         const newPersons = [...persons, response];
