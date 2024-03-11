@@ -38,13 +38,13 @@ const Persons = ({ displayedPersons, handleDelete }) => {
 };
 
 const Notification = ({ message }) => {
-  if (!message.text) return;
-
-  return (
-    <div className={message.type}>
-      {message.text}
-    </div>
-  )
+  if (message && message.text) {
+    return (
+      <div className={message.type}>
+        {message.text}
+      </div>
+    )
+  }
 }
 
 const App = () => {
@@ -52,7 +52,7 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [displayedPersons, setDisplayedPersons] = useState(persons);
-  const [message, setMessage] = useState({});
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
     personService.getAllPersons()
