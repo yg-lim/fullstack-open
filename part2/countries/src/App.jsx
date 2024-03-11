@@ -2,15 +2,22 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
-function Content({ results }) {
+function Results({ results, handleButton }) {
   let content;
   if (results.length > 10)
     content = "Too many matches, specify another filter.";
   else if (results.length === 1) content = <Country country={results[0]} />;
   else
-    content = results.map((result) => (
-      <li key={result.cca2}>{result.name.common}</li>
-    ));
+    content = results.map((result) => {
+      return (
+        <li key={result.cca2}>
+          {result.name.common}
+          <button data-cca2={result.cca2} onClick={handleButton}>
+            show
+          </button>
+        </li>
+      );
+    });
 
   return <div>{content}</div>;
 }
@@ -50,6 +57,14 @@ function App() {
     setResults(matches);
   }
 
+  function handleButtonClick(event) {
+    const countryToDisplay = results.filter(
+      (country) => country.cca2 === event.target.dataset.cca2,
+    );
+
+    setResults(countryToDisplay);
+  }
+
   useEffect(() => {
     axios
       .get("https://studies.cs.helsinki.fi/restcountries/api/all")
@@ -61,7 +76,7 @@ function App() {
   return (
     <>
       find countries <input value={filter} onChange={handleFilterChange} />
-      <Content results={results} />
+      <Results results={results} handleButton={handleButtonClick} />
     </>
   );
 }
