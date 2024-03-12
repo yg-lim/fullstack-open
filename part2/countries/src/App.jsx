@@ -5,11 +5,11 @@ import "./App.css";
 const apiKey = import.meta.env.VITE_OPEN_WEATHER_KEY;
 const KELVINS_TO_C = 273.15;
 
-function Results({ results, handleButton }) {
-  if (results.length > 10)
+function Results({ filterResults, handleButton }) {
+  if (filterResults.length > 10)
     return <p>Too many matches, specify another filter.</p>;
   else {
-    const content = results.map((result) => {
+    const content = filterResults.map((result) => {
       return (
         <li key={result.cca2}>
           {result.name.common}
@@ -61,7 +61,7 @@ function Weather({ weather, capital }) {
 
 function App() {
   const [filter, setFilter] = useState("");
-  const [results, setResults] = useState([]);
+  const [filterResults, setFilterResults] = useState([]);
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState(null);
   const [weather, setWeather] = useState(null);
@@ -94,18 +94,18 @@ function App() {
       : [];
 
     if (matches.length === 1) {
-      if (country === null) {
+      if (country === null || country !== matches[0]) {
         setCountry(matches[0]);
         fetchWeather(matches[0]);
       }
     } else {
-      setResults(matches);
+      setFilterResults(matches);
       setCountry(null);
     }
   }
 
   function handleButtonClick(event) {
-    const countryToDisplay = results.filter(
+    const countryToDisplay = filterResults.filter(
       (country) => country.cca2 === event.target.dataset.cca2,
     )[0];
 
@@ -128,7 +128,10 @@ function App() {
       {country ? (
         <Country country={country} weather={weather} />
       ) : (
-        <Results results={results} handleButton={handleButtonClick} />
+        <Results
+          filterResults={filterResults}
+          handleButton={handleButtonClick}
+        />
       )}
     </>
   );
