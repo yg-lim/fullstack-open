@@ -1,19 +1,6 @@
 const express = require("express");
 const app = express();
 
-app.use(express.json());
-
-function generateId() {
-  return Math.floor(Math.random() * 99999);
-}
-
-function nameExists(personName) {
-  return persons.find(
-    (person) =>
-      person.name.trim().toLowerCase() === personName.trim().toLowerCase(),
-  );
-}
-
 const persons = [
   {
     id: 1,
@@ -36,6 +23,28 @@ const persons = [
     number: "39-23-6423122",
   },
 ];
+
+function generateId() {
+  return Math.floor(Math.random() * 99999);
+}
+
+function nameExists(personName) {
+  return persons.find(
+    (person) =>
+      person.name.trim().toLowerCase() === personName.trim().toLowerCase(),
+  );
+}
+
+function requestLogger(req, res, next) {
+  console.log("Method: ", req.method);
+  console.log("Path: ", req.path);
+  console.log("Body: ", req.body);
+  console.log("---");
+  next();
+}
+
+app.use(express.json());
+app.use(requestLogger);
 
 app.get("/api/persons/", (req, res) => {
   res.json(persons);
@@ -80,6 +89,12 @@ app.post("/api/persons", (req, res) => {
     res.send(person);
   }
 });
+
+const unknownEndpoint = (_req, res) => {
+  res.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
 
 const PORT = 3001;
 
