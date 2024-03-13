@@ -1,3 +1,4 @@
+const morgan = require("morgan");
 const express = require("express");
 const app = express();
 
@@ -35,16 +36,13 @@ function nameExists(personName) {
   );
 }
 
-function requestLogger(req, res, next) {
-  console.log("Method: ", req.method);
-  console.log("Path: ", req.path);
-  console.log("Body: ", req.body);
-  console.log("---");
-  next();
-}
-
 app.use(express.json());
-app.use(requestLogger);
+morgan.token("body", function (req, res) {
+  return JSON.stringify(req.body);
+});
+app.use(
+  morgan(":method :url :status :response-time ms - :res[content-length] :body"),
+);
 
 app.get("/api/persons/", (req, res) => {
   res.json(persons);
