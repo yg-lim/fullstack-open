@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 
 let notes = [
   {
@@ -25,6 +26,7 @@ function generateId() {
   return maxId + 1;
 }
 
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -40,6 +42,16 @@ app.get("/api/notes/:id", (req, res) => {
   const note = notes.find((note) => note.id === id);
   if (note) res.json(note);
   else res.status(404).end();
+});
+
+app.put("/api/notes/:id", (req, res) => {
+  const id = +req.params.id;
+  const note = notes.find((note) => note.id === id);
+  if (!note) res.status(404).end();
+  else {
+    note.important = !note.important;
+    res.json(note);
+  }
 });
 
 app.post("/api/notes/", (req, res) => {
@@ -70,5 +82,5 @@ app.delete("/api/notes/:id", (req, res) => {
   } else res.status(404).end();
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));
