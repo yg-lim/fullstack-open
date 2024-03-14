@@ -1,0 +1,21 @@
+html {
+  font-family: sans-serif;
+}
+
+li {
+  list-style: none;
+}
+
+.error {
+  color: red;
+  border: 1px solid red;
+  padding: 1rem;
+  text-align: center;
+}
+
+.success {
+  color: green;
+  border: 1px solid green;
+  padding: 1rem;
+  text-align: center;
+}
