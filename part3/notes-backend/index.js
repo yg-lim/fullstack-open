@@ -27,7 +27,11 @@ function generateId() {
 }
 
 app.use(cors());
-app.use(express.static("dist"));
+app.use(express.static(__dirname + "/dist"));
+app.use((res, req, next) => {
+  console.log(__dirname);
+  next();
+});
 app.use(express.json());
 
 app.get("/", (req, res) => {
