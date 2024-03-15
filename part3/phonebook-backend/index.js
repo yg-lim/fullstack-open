@@ -21,29 +21,35 @@ app.get("/api/persons/", (req, res) => {
   });
 });
 
-app.get("/info", (req, res) => {
+app.get("/info", (req, res, next) => {
   const info = `<p>Phonebook has info for ${persons.length} people.`;
   const date = new Date().toUTCString();
   res.send(info + `<p>${date}</p>`);
 });
 
-app.get("/api/persons/:id", (req, res) => {
-  const id = +req.params.id;
-  const person = persons.find((person) => person.id === id);
+app.get("/api/persons/:id", (req, res, next) => {
+  const id = req.params.id;
+  Person.findById(id)
+    .then((foundPerson) => {
+      if (!foundPerson) {
+        response.status(404).end();
+        return;
+      }
 
-  if (!person) res.status(404).end();
-  else res.json(person);
+      res.json(foundPerson);
+    })
+    .catch((error) => next(error));
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-  const id = +req.params.id;
-  const idxOfPerson = persons.findIndex((person) => person.id === id);
-  if (idxOfPerson !== -1) persons.splice(idxOfPerson, 1);
-
-  res.status(204).end();
+app.delete("/api/persons/:id", (req, res, next) => {
+  Person.findByIdAndDelete(req.params.id)
+    .then((_result) => {
+      res.status(204).end();
+    })
+    .catch((error) => next(error));
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   const person = req.body;
 
   if (!person.name || !person.number) {
@@ -63,9 +69,7 @@ app.post("/api/persons", (req, res) => {
     .then((result) => {
       res.json(result);
     })
-    .catch((error) => {
-      res.json({ error: error.message });
-    });
+    .catch((error) => next(error));
 });
 
 const unknownEndpoint = (_req, res) => {
@@ -73,6 +77,18 @@ const unknownEndpoint = (_req, res) => {
 };
 
 app.use(unknownEndpoint);
+
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return res.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 

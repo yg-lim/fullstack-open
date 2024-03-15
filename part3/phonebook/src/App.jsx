@@ -169,22 +169,23 @@ const App = () => {
   function handleDeletePerson(event) {
     event.preventDefault();
 
-    const id = +event.target.dataset.id;
-    const personToDelete = persons.find((person) => person.id === id);
-    const warning = `Delete ${personToDelete.name}?`;
+    const target = event.target;
+    const id = target.dataset.id;
+    const warning = `Delete this person?`;
 
     if (window.confirm(warning)) {
       personService
         .deletePerson(id)
         .then(() => {
-          const newPersons = persons.filter((person) => person.id !== id);
-          setPersons(newPersons);
-          setDisplayedPersons(newPersons);
+          personService.getAllPersons().then((newPersons) => {
+            setPersons(newPersons);
+            setDisplayedPersons(newPersons);
+          });
         })
         .catch(() => {
           createNotification({
             type: "error",
-            text: `${personToDelete.name} could not be found or has already been deleted.`,
+            text: `Person could not be found or has already been deleted.`,
           });
         });
     }
