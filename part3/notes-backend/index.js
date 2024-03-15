@@ -1,37 +1,11 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
-
-let notes = [
-  {
-    id: 1,
-    content: "HTML is easy",
-    important: true,
-  },
-  {
-    id: 2,
-    content: "Browser can execute only JavaScript",
-    important: false,
-  },
-  {
-    id: 3,
-    content: "GET and POST are the most important methods of HTTP protocol",
-    important: true,
-  },
-];
-
-function generateId() {
-  const maxId =
-    notes.length > 0 ? Math.max(...notes.map((note) => note.id)) : 0;
-  return maxId + 1;
-}
+const { Note } = require("./models/Note");
 
 app.use(cors());
 app.use(express.static(__dirname + "/dist"));
-app.use((res, req, next) => {
-  console.log(__dirname);
-  next();
-});
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -39,14 +13,16 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/notes", (req, res) => {
-  res.json(notes);
+  Note.find({}).then((result) => {
+    res.json(result);
+  });
 });
 
 app.get("/api/notes/:id", (req, res) => {
-  const id = +req.params.id;
-  const note = notes.find((note) => note.id === id);
-  if (note) res.json(note);
-  else res.status(404).end();
+  const id = req.params.id;
+  Note.findById(id)
+    .then((foundNote) => res.json(foundNote))
+    .catch((error) => res.status(404).json({ error: "Note not found." }));
 });
 
 app.put("/api/notes/:id", (req, res) => {
@@ -63,19 +39,18 @@ app.post("/api/notes/", (req, res) => {
   const body = req.body;
 
   if (!body.content) {
-    return response.status(400).json({
-      error: "content missing",
-    });
+    res.status(400).json({ error: "Content missing" });
+    return;
   }
 
-  const note = {
+  const note = new Note({
     content: body.content,
     important: !!body.important,
-    id: generateId(),
-  };
+  });
 
-  notes.push(note);
-  res.json(note);
+  note.save().then((savedNote) => {
+    res.json(savedNote);
+  });
 });
 
 app.delete("/api/notes/:id", (req, res) => {
@@ -87,5 +62,5 @@ app.delete("/api/notes/:id", (req, res) => {
   } else res.status(404).end();
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));
