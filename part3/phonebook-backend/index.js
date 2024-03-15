@@ -1,41 +1,9 @@
+require("dotenv").config();
 const morgan = require("morgan");
 const express = require("express");
 const app = express();
 const cors = require("cors");
-
-const persons = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
-
-function generateId() {
-  return Math.floor(Math.random() * 99999);
-}
-
-function nameExists(personName) {
-  return persons.find(
-    (person) =>
-      person.name.trim().toLowerCase() === personName.trim().toLowerCase(),
-  );
-}
+const { Person } = require("./models/Person");
 
 app.use(cors());
 app.use(express.json());
@@ -48,7 +16,9 @@ app.use(
 );
 
 app.get("/api/persons/", (req, res) => {
-  res.json(persons);
+  Person.find({}).then((returnedPersons) => {
+    res.json(returnedPersons);
+  });
 });
 
 app.get("/info", (req, res) => {
@@ -80,15 +50,22 @@ app.post("/api/persons", (req, res) => {
     res.status(400).json({
       error: "person must have name and number",
     });
-  } else if (nameExists(person.name)) {
-    res.status(400).json({
-      error: "name must be unique",
-    });
-  } else {
-    person.id = generateId();
-    persons.push(person);
-    res.send(person);
+    return;
   }
+
+  const newPerson = new Person({
+    name: person.name,
+    number: person.number,
+  });
+
+  newPerson
+    .save()
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((error) => {
+      res.json({ error: error.message });
+    });
 });
 
 const unknownEndpoint = (_req, res) => {

@@ -191,7 +191,7 @@ const App = () => {
   }
 
   return (
-    <div>
+    <>
       <Notification message={message} />
       <h2>Phonebook</h2>
       <Filter handleChange={handleFilterChange} text={"filter shown with"} />
@@ -208,7 +208,7 @@ const App = () => {
         displayedPersons={displayedPersons}
         handleDelete={handleDeletePerson}
       />
-    </div>
+    </>
   );
 };
 
