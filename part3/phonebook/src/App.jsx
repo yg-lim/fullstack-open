@@ -82,10 +82,8 @@ const App = () => {
     setTimeout(() => setMessage({}), 5000);
   }
 
-  function contactExists(name) {
-    return persons.find(
-      (person) => person.name.toLowerCase() === name.toLowerCase(),
-    );
+  function findMatchingContact(persons, name) {
+    return persons.find((person) => person.name.trim().toLowerCase() === name);
   }
 
   function handleNameChange(event) {
@@ -121,12 +119,14 @@ const App = () => {
 
     const trimmedNewName = newName.trim();
     const trimmedNewNumber = newNumber.trim();
-    const matchingContact = contactExists(trimmedNewName);
+
+    const matchingContact = findMatchingContact(persons, trimmedNewName);
 
     if (matchingContact) {
       const warning =
-        `${matchingContact.name} already exists in the phonebook.` +
+        `${matchingContact.name} already exists in the phonebook. ` +
         "Replace the old number with a new one?";
+
       if (!window.confirm(warning)) {
         alert("Duplicate contacts not allowed. Contact not added.");
         return;
@@ -134,12 +134,14 @@ const App = () => {
 
       personService
         .updatePerson({ ...matchingContact, number: trimmedNewNumber })
-        .then((response) => {
-          const newPersons = persons.map((person) =>
-            person.id === response.id ? response : person,
+        .then((updatedPerson) => {
+          const updatedPersons = persons.map((person) =>
+            person.id === updatedPerson.id ? updatedPerson : person,
           );
-          setPersons(newPersons);
-          setDisplayedPersons(newPersons);
+          setPersons(updatedPersons);
+          setDisplayedPersons(updatedPersons);
+          setNewName("");
+          setNewNumber("");
         })
         .catch(() => {
           createNotification({
@@ -163,6 +165,7 @@ const App = () => {
     const displayedPersons = persons.filter((person) =>
       new RegExp(filter, "i").test(person.name),
     );
+
     setDisplayedPersons(displayedPersons);
   }
 
@@ -176,10 +179,15 @@ const App = () => {
     if (window.confirm(warning)) {
       personService
         .deletePerson(id)
-        .then(() => {
-          personService.getAllPersons().then((newPersons) => {
-            setPersons(newPersons);
-            setDisplayedPersons(newPersons);
+        .then((result) => {
+          const updatedPersons = persons.filter(
+            (person) => person.id !== result.id,
+          );
+          setPersons(updatedPersons);
+          setDisplayedPersons(updatedPersons);
+          createNotification({
+            type: "success",
+            text: `${result.name} successfully deleted.`,
           });
         })
         .catch(() => {
