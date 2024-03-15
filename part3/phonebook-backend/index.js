@@ -22,9 +22,13 @@ app.get("/api/persons/", (req, res) => {
 });
 
 app.get("/info", (req, res, next) => {
-  const info = `<p>Phonebook has info for ${persons.length} people.`;
-  const date = new Date().toUTCString();
-  res.send(info + `<p>${date}</p>`);
+  Person.find({})
+    .then((allPersons) => {
+      const info = `<p>Phonebook has info for ${allPersons.length} people.`;
+      const date = new Date().toUTCString();
+      res.send(info + `<p>${date}</p>`);
+    })
+    .catch((error) => next(error));
 });
 
 app.get("/api/persons/:id", (req, res, next) => {
@@ -43,8 +47,23 @@ app.get("/api/persons/:id", (req, res, next) => {
 
 app.delete("/api/persons/:id", (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
-    .then((_result) => {
-      res.status(204).end();
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((error) => next(error));
+});
+
+app.put("/api/persons/:id", (req, res, next) => {
+  const body = req.body;
+
+  const newPerson = {
+    name: body.content,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(req.params.id, newPerson, { new: true })
+    .then((updatedPerson) => {
+      res.json(updatedPerson);
     })
     .catch((error) => next(error));
 });
@@ -78,7 +97,7 @@ const unknownEndpoint = (_req, res) => {
 
 app.use(unknownEndpoint);
 
-const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, _req, res, next) => {
   console.error(error.message);
 
   if (error.name === "CastError") {
