@@ -8,20 +8,20 @@ const { Person } = require("./models/Person");
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname + "/dist"));
-morgan.token("body", function (req, res) {
+morgan.token("body", function (req, _res) {
   return JSON.stringify(req.body);
 });
 app.use(
   morgan(":method :url :status :response-time ms - :res[content-length] :body"),
 );
 
-app.get("/api/persons/", (req, res) => {
+app.get("/api/persons/", (_req, res) => {
   Person.find({}).then((returnedPersons) => {
     res.json(returnedPersons);
   });
 });
 
-app.get("/info", (req, res, next) => {
+app.get("/info", (_req, res, next) => {
   Person.find({})
     .then((allPersons) => {
       const info = `<p>Phonebook has info for ${allPersons.length} people.`;
@@ -31,24 +31,24 @@ app.get("/info", (req, res, next) => {
     .catch((error) => next(error));
 });
 
+app.delete("/api/persons/:id", (req, res, next) => {
+  Person.findByIdAndDelete(req.params.id)
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((error) => next(error));
+});
+
 app.get("/api/persons/:id", (req, res, next) => {
   const id = req.params.id;
   Person.findById(id)
     .then((foundPerson) => {
       if (!foundPerson) {
-        response.status(404).end();
+        res.status(404).end();
         return;
       }
 
       res.json(foundPerson);
-    })
-    .catch((error) => next(error));
-});
-
-app.delete("/api/persons/:id", (req, res, next) => {
-  Person.findByIdAndDelete(req.params.id)
-    .then((result) => {
-      res.json(result);
     })
     .catch((error) => next(error));
 });
