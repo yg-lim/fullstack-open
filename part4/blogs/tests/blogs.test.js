@@ -51,3 +51,12 @@ describe('author with most blogs', () => {
     })
   })
 })
+
+describe('author with most likes', () => {
+  test('correctly returns author with most likes', () => {
+    assert.deepStrictEqual(listHelper.mostLikes(seedData), {
+      author: "Edsger W. Dijkstra",
+      likes: 17
+    })
+  })
+})

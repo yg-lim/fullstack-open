@@ -62,9 +62,45 @@ function mostBlogs(blogs) {
   }
 }
 
+function sortByAuthorAndLikes(blogs) {
+  const authors = {};
+
+  blogs.forEach(blog => {
+    let author = blog.author;
+    if (authors.hasOwnProperty(author)) {
+      authors[author] += blog.likes;
+    } else {
+      authors[author] = blog.likes;
+    }
+  })
+  
+  return authors;
+}
+
+function mostLikes(blogs) {
+  if (blogs.length === 0) return {};
+  const authors = sortByAuthorAndLikes(blogs);
+
+  let min = -1;
+  const topAuthor = Object.keys(authors).reduce((author, currentAuthor) => {
+    if (authors[currentAuthor] > min) {
+      min = authors[currentAuthor];
+      return currentAuthor;
+    } else {
+      return author;
+    }
+  });
+
+  return {
+    author: topAuthor,
+    likes: authors[topAuthor]
+  }
+}
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
   mostBlogs,
+  mostLikes,
 }
