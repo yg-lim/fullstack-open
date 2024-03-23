@@ -42,3 +42,12 @@ describe('favorite blog', () => {
     })
   })
 })
+
+describe('author with most blogs', () => {
+  test('correctly returns author with most blogs', () => {
+    assert.deepStrictEqual(listHelper.mostBlogs(seedData), {
+      author: "Robert C. Martin",
+      blogs: 3
+    })
+  })
+})
