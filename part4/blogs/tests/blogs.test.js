@@ -32,3 +32,13 @@ describe('total likes', () => {
     assert.strictEqual(listHelper.totalLikes(seedData), 36);
   })
 });
+
+describe('favorite blog', () => {
+  test('correctly returns top liked blog', () => {
+    assert.deepStrictEqual(listHelper.favoriteBlog(seedData), {
+      title: "Canonical string reduction",
+      author: "Edsger W. Dijkstra",
+      likes: 12
+    })
+  })
+})
