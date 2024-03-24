@@ -20,11 +20,12 @@ const initialNotes = [
 
 beforeEach(async function () {
   await Note.deleteMany({})
-  initialNotes.forEach(async (note) => {
-    const noteObject = new Note(note);
-    await noteObject.save();
-  })
+  
+  const notes = helper.initialNotes.map(note => new Note(note))
+    .map(note => note.save());
+  await Promise.all(notes);
 })
+
 test('notes are returned as json', async () => {
   await api
     .get('/api/notes')
@@ -35,7 +36,7 @@ test('notes are returned as json', async () => {
 test('there are two notes', async function() {
   const response = await api.get('/api/notes');
   
-  assert.strictEqual(response.body.length, 2)
+  assert.strictEqual(response.body.length, initialNotes.length)
 })
 
 test('the first note is about HTTP methods', async function() {

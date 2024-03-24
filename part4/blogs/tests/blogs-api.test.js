@@ -31,14 +31,17 @@ describe('mongoose docs are loaded', () => {
 
 describe('new blog successfully created', () => {
   test('new doc is present in database', async function() {
-    const blog = new Blog({
+    const initialBlog = {
       title: "title of my blog",
       author: "someone anon",
       url: "fakeurl.com",
       likes: 1,
-    })
+    };
 
-    await blog.save();
+    await api.post('/api/blogs')
+      .send(initialBlog)
+      .expect(201);
+
     const allBlogs = await Blog.find({});
     assert.strictEqual(allBlogs.length, initialData.length + 1);
   })
@@ -51,13 +54,63 @@ describe('new blog successfully created', () => {
       likes: 1,
     }
 
-    const newBlog = new Blog(initialBlog);
-    await newBlog.save();
+    await api
+      .post('/api/blogs')
+      .send(initialBlog)
+      .expect(201);
 
     const results = await Blog.find(initialBlog);
     const foundBlog = results[0];
 
     assert.strictEqual(Object.keys(initialBlog).every(key => initialBlog[key] === foundBlog[key]), true);
+  })
+})
+
+describe('missing properties of blogs are handled', () => {
+  test('missing likes property defaults to 0', async function() {
+    const initialBlog = {
+      title: "title",
+      author: "author",
+      url: "url.url"
+    };
+
+    await api
+      .post('/api/blogs')
+      .send(initialBlog)
+      .expect(201)
+
+    const results = await Blog.find(initialBlog);
+    const foundBlog = results[0];
+
+    assert.strictEqual(foundBlog.likes, 0);
+  })
+
+  test('docs with missing title or url properties cannot be added', async function () {
+    const missingUrl = {
+      title: "title",
+      author: "author",
+      likes: 123,
+    };
+
+    const missingTitle = {
+      url: "url.url",
+      author: "author",
+      likes: 123,
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(missingUrl)
+      .expect(400)
+
+    await api
+      .post('/api/blogs')
+      .send(missingTitle)
+      .expect(400)
+
+    const allBlogs = await Blog.find({})
+
+    assert.strictEqual(allBlogs.length, initialData.length);
   })
 })
 
