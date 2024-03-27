@@ -40,7 +40,8 @@ describe('new blog successfully created', () => {
 
     await api.post('/api/blogs')
       .send(initialBlog)
-      .expect(201);
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
 
     const allBlogs = await Blog.find({});
     assert.strictEqual(allBlogs.length, initialData.length + 1);
@@ -57,7 +58,8 @@ describe('new blog successfully created', () => {
     await api
       .post('/api/blogs')
       .send(initialBlog)
-      .expect(201);
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
 
     const results = await Blog.find(initialBlog);
     const foundBlog = results[0];
@@ -78,6 +80,7 @@ describe('missing properties of blogs are handled', () => {
       .post('/api/blogs')
       .send(initialBlog)
       .expect(201)
+      .expect('Content-Type', /application\/json/)
 
     const results = await Blog.find(initialBlog);
     const foundBlog = results[0];
@@ -111,6 +114,56 @@ describe('missing properties of blogs are handled', () => {
     const allBlogs = await Blog.find({})
 
     assert.strictEqual(allBlogs.length, initialData.length);
+  })
+})
+
+describe('blog posts are deleted', () => {
+  test('deleted blog cannot be found', async function() {
+    const newBlog = {
+      title: "title",
+      url: "url",
+    };
+
+    const response = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    await api
+      .delete(`/api/blogs/${response.body.id}`)
+      .expect(204);
+
+    await api
+      .get(`/api/blogs/${response.body.id}`)
+      .expect(404);
+  })
+})
+
+describe('blog likes are updated', () => {
+  test('returned blog has updated likes', async function () {
+    const newBlog = {
+      title: "title",
+      url: "url.url",
+      likes: 10,
+    }
+
+    const newBlogResponse = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    await api
+      .post(`/api/blogs/${newBlogResponse.body.id}`)
+      .send({ likes: 25 })
+      .expect(200)
+
+    const updatedBlogResponse = await api
+      .get(`/api/blogs/${newBlogResponse.body.id}`)
+      .expect(200)
+
+    assert.strictEqual(updatedBlogResponse.body.likes, 25);
   })
 })
 
