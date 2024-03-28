@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  blogs: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Blog",
+  }],
 });
 
 userSchema.set("toJSON", {

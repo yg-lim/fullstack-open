@@ -11,12 +11,12 @@ mongoose.connect(config.MONGODB_URI)
   .then(_result => console.log("connected to database"))
   .catch(_error => console.log("could not connect to database"));
 
-app.use(cors())
-app.use(express.json())
-app.use("/api", blogsRouter);
+app.use(cors());
+app.use(express.json());
+app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
 
-const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, _req, res, next) => {
   if (
     error.name === 'MongoServerError'
     && error.message.includes("E11000 duplicate key error")
