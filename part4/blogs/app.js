@@ -16,4 +16,22 @@ app.use(express.json())
 app.use("/api", blogsRouter);
 app.use("/api/users", usersRouter);
 
+const errorHandler = (error, req, res, next) => {
+  if (
+    error.name === 'MongoServerError'
+    && error.message.includes("E11000 duplicate key error")
+  ) {
+    res.status(400).json({ error: "username already exists in database" });
+  } else if (
+    error.name === 'ValidationError'
+    && error.message.includes('User validation failed')
+  ) {
+    res.status(400).json({ error: "username must be at least 2 characters" });
+  } else {
+    next(error);
+  }
+};
+
+app.use(errorHandler);
+
 module.exports = app;
