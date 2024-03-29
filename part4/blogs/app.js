@@ -16,7 +16,7 @@ mongoose.connect(config.MONGODB_URI)
 app.use(cors());
 app.use(express.json());
 app.use(middleware.tokenExtractor);
-app.use("/api/blogs", blogsRouter);
+app.use("/api/blogs", middleware.userExtractor, blogsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/login", loginRouter);
 
@@ -31,6 +31,8 @@ const errorHandler = (error, _req, res, next) => {
     && error.message.includes('User validation failed')
   ) {
     res.status(400).json({ error: "username must be at least 2 characters" });
+  } else if (error.name === 'CastError') {
+    res.status(404).json({ error: "could not be found" });
   } else {
     next(error);
   }
