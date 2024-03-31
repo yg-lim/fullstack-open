@@ -96,7 +96,7 @@ describe('missing properties of blogs are handled', () => {
     const foundBlog = results[0];
 
     assert.strictEqual(foundBlog.likes, 0);
-  })
+  });
 
   test('docs with missing title or url properties cannot be added', async function () {
     const token = await createUserAndLogin();
@@ -111,7 +111,7 @@ describe('missing properties of blogs are handled', () => {
       url: "url.url",
       author: "author",
       likes: 123,
-    }
+    };
 
     await api
       .post('/api/blogs')
@@ -129,7 +129,7 @@ describe('missing properties of blogs are handled', () => {
 
     assert.strictEqual(allBlogs.length, initialData.length);
   })
-})
+});
 
 describe('blog posts are deleted', () => {
   test('deleted blog cannot be found', async function() {
@@ -156,12 +156,12 @@ describe('blog posts are deleted', () => {
       .get(`/api/blogs/${response.body.id}`)
       .expect(404);
   })
-})
+});
 
 describe('blog likes are updated', () => {
   test('returned blog has updated likes', async function () {
     const token = await createUserAndLogin();
-    
+
     const newBlog = {
       title: "title",
       url: "url.url",
@@ -193,4 +193,4 @@ describe('blog likes are updated', () => {
 
 after(async function() {
   await mongoose.connection.close();
-})
+});
