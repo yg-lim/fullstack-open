@@ -13,4 +13,6 @@ async function clear() {
   mongoose.connection.close();
 }
 
-clear();
+async function admin() {
+  
+}

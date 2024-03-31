@@ -33,6 +33,16 @@ const errorHandler = (error, _req, res, next) => {
     res.status(400).json({ error: "username must be at least 2 characters" });
   } else if (error.name === 'CastError') {
     res.status(404).json({ error: "could not be found" });
+  } else if (
+    error.name === 'ValidationError'
+    && error.message.includes("Path `url` is required")
+  ) {
+    res.status(400).json({ error: "`url` is required" });
+  } else if (
+    error.name === 'ValidationError'
+    && error.message.includes("Path `title` is required")
+  ) {
+    res.status(400).json({ error: '`title` is required' });
   } else {
     next(error);
   }
